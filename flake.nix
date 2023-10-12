@@ -1,5 +1,5 @@
 {
-  description = "PlanetScale proxy";
+  description = "PlanetScale simulator for local testing and development";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";

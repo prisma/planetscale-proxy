@@ -20,8 +20,8 @@ import (
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/vterrors"
 
-	psdbv1alpha1 "github.com/mattrobenolt/ps-http-sim/types/psdb/v1alpha1"
-	"github.com/mattrobenolt/ps-http-sim/types/psdb/v1alpha1/psdbv1alpha1connect"
+	psdbv1alpha1 "github.com/prisma/planetscale-proxy/types/psdb/v1alpha1"
+	"github.com/prisma/planetscale-proxy/types/psdb/v1alpha1/psdbv1alpha1connect"
 )
 
 var (

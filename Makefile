@@ -1,4 +1,4 @@
-gomod := github.com/mattrobenolt/ps-http-sim
+gomod := github.com/prisma/planetscale-proxy
 
 PSDB_PROTO_OUT := types
 PSDB_PROTO_ROOT := $(PSDB_PROTO_OUT)/psdb

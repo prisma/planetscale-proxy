@@ -1,4 +1,4 @@
-module github.com/mattrobenolt/ps-http-sim
+module github.com/prisma/planetscale-proxy
 
 go 1.19
 

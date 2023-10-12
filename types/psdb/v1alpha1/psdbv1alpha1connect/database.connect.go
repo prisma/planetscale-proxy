@@ -8,7 +8,7 @@ import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
-	v1alpha1 "github.com/mattrobenolt/ps-http-sim/types/psdb/v1alpha1"
+	v1alpha1 "github.com/prisma/planetscale-proxy/types/psdb/v1alpha1"
 	http "net/http"
 	strings "strings"
 )

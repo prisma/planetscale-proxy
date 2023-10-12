@@ -18,5 +18,11 @@
             gopls
           ];
         };
+
+        packages.default = pkgs.buildGoModule {
+          name = "ps-http-sim";
+          src = ./.;
+          vendorHash = "sha256-rKy8RStimcj7DHRVeZiAHEGtkEvU2JdFj9RcYicFsUg=";
+        };
       });
 }

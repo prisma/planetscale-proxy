@@ -73,7 +73,7 @@ func getConn(ctx context.Context, uname, pass, session string) (*mysql.Conn, err
 	// without a lock, so parallel dials can happen
 	rawConn, err := dial(ctx, uname, pass)
 	if err != nil {
-        log.Printf("error dialing a connection: %v", err)
+		log.Printf("error dialing a connection: %v", err)
 		return nil, err
 	}
 
@@ -119,8 +119,8 @@ func init() {
 }
 
 func main() {
-    log.SetOutput(os.Stderr)
-    log.Printf("starting the planetscale proxy on %s:%d\n", *flagHTTPAddr, *flagHTTPPort)
+	log.SetOutput(os.Stderr)
+	log.Printf("starting the planetscale proxy on %s:%d\n", *flagHTTPAddr, *flagHTTPPort)
 	initConnPool()
 	mux := http.NewServeMux()
 	mux.Handle(psdbv1alpha1connect.NewDatabaseHandler(&server{}))

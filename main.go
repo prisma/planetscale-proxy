@@ -120,6 +120,7 @@ func init() {
 
 func main() {
 	log.SetOutput(os.Stderr)
+	log.SetFlags(log.Ltime)
 	log.Printf("starting the planetscale proxy on %s:%d\n", *flagHTTPAddr, *flagHTTPPort)
 	initConnPool()
 	mux := http.NewServeMux()

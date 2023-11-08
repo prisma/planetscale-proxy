@@ -37,6 +37,7 @@ type mysqlConnKey struct {
 type timedConn struct {
 	*mysql.Conn
 	lastUsed time.Time
+	busyMutex sync.Mutex
 }
 
 var (
@@ -65,6 +66,7 @@ func getConn(ctx context.Context, uname, pass, session string) (*mysql.Conn, err
 	if conn, ok := connPool[key]; ok {
 		connMu.RUnlock()
 		conn.lastUsed = time.Now()
+		conn.busyMutex.Lock()
 		return conn.Conn, nil
 	}
 	connMu.RUnlock()
@@ -79,7 +81,7 @@ func getConn(ctx context.Context, uname, pass, session string) (*mysql.Conn, err
 
 	// lock to write to map
 	connMu.Lock()
-	connPool[key] = &timedConn{rawConn, time.Now()}
+	connPool[key] = &timedConn{ Conn: rawConn, lastUsed: time.Now()}
 	connMu.Unlock()
 
 	// since it was parallel, the last one would have won and been written
@@ -87,7 +89,18 @@ func getConn(ctx context.Context, uname, pass, session string) (*mysql.Conn, err
 	connMu.RLock()
 	conn := connPool[key]
 	connMu.RUnlock()
+	conn.busyMutex.Lock()
 	return conn.Conn, nil
+}
+
+func unlockConn(uname, pass, session string) {
+	key := mysqlConnKey{uname, pass, session}
+	connMu.RLock()
+	conn, ok := connPool[key]
+	if ok {
+		connMu.RUnlock()
+		conn.busyMutex.Unlock()
+	}
 }
 
 // dial connects to the underlying MySQL server, and switches to the underlying
@@ -173,19 +186,21 @@ func (s *server) Execute(
 	msg := req.Msg
 	query := msg.Query
 	session := msg.Session
+	pass := string(creds.SecretBytes())
 
 	// if there is no session, let's generate a new one
 	if session == "" {
 		session = gonanoid.Must()
 	}
 
-	conn, err := getConn(context.Background(), creds.Username(), string(creds.SecretBytes()), session)
+	conn, err := getConn(context.Background(), creds.Username(), pass, session)
 	if err != nil {
 		if strings.Contains(err.Error(), "Access denied for user") {
 			return nil, connect.NewError(connect.CodeUnauthenticated, err)
 		}
 		return nil, err
 	}
+	defer unlockConn(creds.Username(), pass, session)
 
 	// This is a gross simplificiation, but is likely sufficient
 	qr, err := conn.ExecuteFetch(query, int(*flagMySQLMaxRows), true)
@@ -228,8 +243,10 @@ func initConnPool() {
 					}
 
 					connMu.Lock()
+					conn.busyMutex.Lock()
 					conn.Close()
 					delete(connPool, key)
+					conn.busyMutex.Unlock()
 					connMu.Unlock()
 				}
 			}
